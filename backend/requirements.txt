@@ -5,4 +5,5 @@ asyncpg
 alembic
 pydantic-settings
 google-genai
-python-dotenv
+python-dotenvhttpx
+beautifulsoup4
