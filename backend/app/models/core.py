@@ -57,3 +57,14 @@ class Attempt(Base):
     awarded_mark: Mapped[int | None] = mapped_column(Integer, nullable=True)
     feedback_json: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+
+
+class Rubric(Base):
+    __tablename__ = "rubrics"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    question_id: Mapped[int] = mapped_column(ForeignKey("questions.id"), unique=True)
+    total_marks: Mapped[int] = mapped_column(Integer)
+    criteria_json: Mapped[str] = mapped_column(Text)   # JSON: list of {point, marks}
+    grounded_in_scheme: Mapped[bool] = mapped_column(default=False)
+
+    question: Mapped["Question"] = relationship()
