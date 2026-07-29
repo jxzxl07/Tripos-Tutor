@@ -22,6 +22,7 @@ class Question(Base):
     question_number: Mapped[int] = mapped_column(Integer)
     question_text: Mapped[str] = mapped_column(Text)
     source_pdf_path: Mapped[str] = mapped_column(String(500))
+    context_text: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     course: Mapped["Course"] = relationship(back_populates="questions")
     mark_scheme: Mapped["MarkScheme | None"] = relationship(
@@ -66,5 +67,17 @@ class Rubric(Base):
     total_marks: Mapped[int] = mapped_column(Integer)
     criteria_json: Mapped[str] = mapped_column(Text)   # JSON: list of {point, marks}
     grounded_in_scheme: Mapped[bool] = mapped_column(default=False)
+
+    question: Mapped["Question"] = relationship()
+
+
+class QuestionPart(Base):
+    __tablename__ = "question_parts"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    question_id: Mapped[int] = mapped_column(ForeignKey("questions.id"))
+    label: Mapped[str] = mapped_column(String(10))       # "a", "b", "c"...
+    order_index: Mapped[int] = mapped_column(Integer)    # 0, 1, 2... for ordering
+    part_text: Mapped[str] = mapped_column(Text)
+    marks: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     question: Mapped["Question"] = relationship()
