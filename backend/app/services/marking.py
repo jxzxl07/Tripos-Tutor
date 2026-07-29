@@ -1,60 +1,79 @@
 """
-Marks a student's free-text answer against a question's stored rubric.
-Returns a structured result: overall mark, what scored, what was missed, and why.
+Marks a student's answer to ONE part of a question against that part's rubric
+criterion (matched by label). Returns a mark plus what scored / what was missed.
 """
 import json
 from pydantic import BaseModel
 from app.services.llm import client, PRO
 
 
-class CriterionResult(BaseModel):
-    point: str              # the rubric point being assessed
-    marks_available: int
+class PartMarkingResult(BaseModel):
     marks_awarded: int
-    comment: str            # why they got / didn't get these marks
-
-class MarkingResult(BaseModel):
-    total_awarded: int
-    total_available: int
+    marks_available: int
     strengths: str          # what the answer did well (what scored)
     gaps: str               # what was missing or wrong (what was missed)
-    overall_feedback: str   # summary + how to improve
+    feedback: str           # why this mark + how to improve
 
 
 MARKING_PROMPT = """You are a Cambridge Computer Science Tripos examiner marking a
-student's answer against the marking rubric. Be fair but rigorous — award marks only
-for points the student genuinely addresses. For each rubric criterion, decide how many
-of its marks the answer earns and why. Then summarise strengths, gaps, and overall
-feedback with concrete advice.
+student's answer to ONE part of an exam question. Be fair but rigorous — award marks
+only for what the student genuinely demonstrates against the marking criterion.
 
-QUESTION:
-{question}
+{context_block}QUESTION PART ({label}) [{marks_available} marks]:
+{part_text}
 
-MARKING RUBRIC (criteria and marks):
-{rubric}
+MARKING CRITERION for this part:
+{criterion}
 
 STUDENT'S ANSWER:
 {answer}
+
+Award marks out of {marks_available}. Explain what earned marks (strengths), what was
+missing or wrong (gaps), and give concrete feedback.
 """
 
 
-def mark_answer(question_text: str, rubric_criteria: list[dict], total_marks: int,
-                student_answer: str) -> MarkingResult:
-    rubric_str = "\n".join(
-        f"- [{c['marks']} marks] {c['point']}" for c in rubric_criteria
-    )
+def find_criterion_for_part(label: str, rubric_criteria: list[dict]) -> dict | None:
+    """Match a part label (e.g. 'a') to its rubric criterion by looking for
+    'Part (a)' or a leading 'a)' in the criterion's point text."""
+    lab = label.lower().strip()
+    for c in rubric_criteria:
+        point = c["point"].lower()
+        if f"part ({lab})" in point or point.startswith(f"{lab})") or point.startswith(f"({lab})"):
+            return c
+    return None
+
+
+def mark_part(part_label: str, part_text: str, part_marks: int | None,
+              rubric_criteria: list[dict], student_answer: str,
+              context_text: str | None = None) -> PartMarkingResult:
+    criterion = find_criterion_for_part(part_label, rubric_criteria)
+
+    # marks available: prefer the part's own marks, else the matched criterion's
+    marks_available = part_marks or (criterion["marks"] if criterion else 0) or 0
+    criterion_text = criterion["point"] if criterion else \
+        "No specific criterion found — assess the answer against what a strong response to this part would require."
+
+    context_block = f"CONTEXT (shared setup for the whole question):\n{context_text}\n\n" \
+        if context_text else ""
+
     prompt = MARKING_PROMPT.format(
-        question=question_text,
-        rubric=f"Total: {total_marks} marks\n{rubric_str}",
+        context_block=context_block,
+        label=part_label,
+        marks_available=marks_available,
+        part_text=part_text,
+        criterion=criterion_text,
         answer=student_answer,
     )
     resp = client.models.generate_content(
-        model=PRO,                      # Pro for marking — quality matters here
+        model=PRO,
         contents=prompt,
         config={
             "response_mime_type": "application/json",
-            "response_schema": MarkingResult,
+            "response_schema": PartMarkingResult,
             "http_options": {"timeout": 60000},
         },
     )
-    return resp.parsed
+    result = resp.parsed
+    result.marks_available = marks_available   # ensure it reports the right total
+    return result
