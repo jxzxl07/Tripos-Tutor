@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import Markdown from "./Markdown"
 
 function QuestionView({ questionId, user, onBack }) {
   const [question, setQuestion] = useState(null)
@@ -37,14 +38,18 @@ function QuestionView({ questionId, user, onBack }) {
         <span className="text-sm text-slate-400">{user.name}</span>
       </header>
 
-      <div className="flex flex-1 min-h-0">
-        <div className="hidden lg:block lg:w-[55%] p-4 sticky top-[65px] h-[calc(100vh-65px)]">
-          <iframe title="question"
+      <div className="flex flex-col lg:flex-row flex-1 min-h-0">
+        {/* PDF — full width on top when narrow, left 55% when wide */}
+        <div className="w-full lg:w-[55%] p-4 lg:sticky lg:top-[65px] h-[60vh] lg:h-[calc(100vh-65px)]">
+          <iframe
+            title="question"
             src={`/api/questions/${questionId}/pdf#toolbar=0`}
-            className="w-full h-full rounded-xl bg-white shadow-2xl ring-1 ring-slate-800" />
+            className="w-full h-full rounded-xl bg-white shadow-2xl ring-1 ring-slate-800"
+          />
         </div>
 
-        <div className="w-full lg:w-[45%] p-6 overflow-y-auto h-[calc(100vh-65px)] border-l border-slate-800">
+        {/* Answers — below the PDF when narrow, right 45% when wide */}
+        <div className="w-full lg:w-[45%] p-6 overflow-y-auto lg:h-[calc(100vh-65px)] border-t lg:border-t-0 lg:border-l border-slate-800">
           <h3 className="text-xl font-bold mb-5">Your Answers</h3>
 
           {question.parts.map((part) => {
@@ -100,7 +105,7 @@ function Feedback({ label, color, text }) {
   return (
     <div className="mb-3 last:mb-0">
       <p className={`text-xs font-bold uppercase tracking-wide mb-1 ${color}`}>{label}</p>
-      <p className="text-sm text-slate-300 leading-relaxed">{text}</p>
+      <div className="text-sm text-slate-300"><Markdown>{text}</Markdown></div>
     </div>
   )
 }
