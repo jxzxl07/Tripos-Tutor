@@ -16,7 +16,7 @@ function QuestionView({ questionId, user, onBack }) {
     const res = await fetch("http://localhost:8000/api/mark", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ part_id: partId, answer: answers[partId] || "" }),
+      body: JSON.stringify({ part_id: partId, answer: answers[partId] || "", user_id: user.id }),
     })
     const result = await res.json()
     setResults((r) => ({ ...r, [partId]: result }))

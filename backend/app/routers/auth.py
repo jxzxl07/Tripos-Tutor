@@ -15,7 +15,7 @@ class GoogleLoginRequest(BaseModel):
 
 @router.post("/google")
 def google_login(req: GoogleLoginRequest):
-    # 1. Verify the token is genuinely from Google and issued for our app
+    # Verify the token is genuinely from Google and issued for our app
     try:
         info = id_token.verify_oauth2_token(
             req.credential,
@@ -29,11 +29,10 @@ def google_login(req: GoogleLoginRequest):
     name = info.get("name", "")
     google_sub = info.get("sub")     # Google's unique user id
 
-    # 2. (Optional) restrict to Cambridge — commented out so you can test with gmail.
-    # if not email.endswith("@cam.ac.uk"):
-    #     raise HTTPException(403, "Cambridge accounts only")
+    if not email.endswith("@cam.ac.uk"):
+        raise HTTPException(403, "Cambridge accounts only")
 
-    # 3. Create or find the user
+    # Create or find the user
     s = SessionLocal()
     user = s.query(User).filter_by(google_sub=google_sub).first()
     if not user:
