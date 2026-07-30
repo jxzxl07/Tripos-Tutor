@@ -1,6 +1,6 @@
 # Tripos Tutor
 
-AI-powered revision for the Cambridge Computer Science Tripos. Practise real past-paper questions, get instant examiner-style marking, and track where you're weakest — per topic, per course.
+AI-powered revision for the Cambridge Computer Science Tripos. Practise real past-paper questions, get instant examiner-style marking, and track where you're weakest - per topic, per course.
 
 **Live:** https://tripos-tutor.onrender.com (Cambridge `@cam.ac.uk` accounts only)
 
