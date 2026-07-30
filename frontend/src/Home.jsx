@@ -5,41 +5,41 @@ function Home({ user, onLogout, onPickCourse }) {
 
   useEffect(() => {
     fetch("http://localhost:8000/api/courses")
-      .then((r) => r.json())
-      .then(setCourses)
+      .then((r) => r.json()).then(setCourses)
   }, [])
 
   return (
-    <div style={s.page}>
-      <div style={s.header}>
-        <h1 style={s.brand}>Tripos Tutor</h1>
-        <div>
-          <span style={s.name}>{user.name}</span>
-          <button style={s.logout} onClick={onLogout}>Log out</button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-950 via-slate-900 to-slate-950 text-slate-100">
+      <div className="max-w-7xl mx-auto px-8 py-10">
+        <header className="flex items-center justify-between mb-16">
+          <h1 className="text-2xl font-bold tracking-tight">Tripos Tutor</h1>
+          <div className="flex items-center gap-4">
+            <span className="text-slate-300 text-sm">{user.name}</span>
+            <button onClick={onLogout}
+              className="text-sm bg-slate-800 hover:bg-slate-700 border border-slate-700
+                         px-4 py-2 rounded-lg transition-colors">Log out</button>
+          </div>
+        </header>
 
-      <p style={s.prompt}>Choose a course to practise:</p>
-      <div style={s.grid}>
-        {courses.map((c) => (
-          <button key={c.id} style={s.courseBtn} onClick={() => onPickCourse(c)}>
-            {c.name}
-          </button>
-        ))}
+        <div className="text-center mb-14">
+          <h2 className="text-4xl font-bold mb-3 tracking-tight">Choose a course to practise</h2>
+          <p className="text-slate-400 text-lg">Past-paper questions with instant, examiner-style AI marking</p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          {courses.map((c) => (
+            <button key={c.id} onClick={() => onPickCourse(c)}
+              className="group bg-slate-800/40 hover:bg-slate-800 border border-slate-700/80
+                         hover:border-blue-500 rounded-2xl p-6 text-left transition-all duration-200
+                         hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/10 min-h-[110px] flex flex-col justify-between">
+              <span className="font-semibold text-lg leading-snug">{c.name}</span>
+              <span className="text-slate-600 group-hover:text-blue-400 group-hover:translate-x-1 transition-all text-xl self-end">→</span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )
-}
-
-const s = {
-  page: { minHeight: "100vh", background: "linear-gradient(135deg,#1e3a8a,#0f172a)", color: "#e2e8f0", fontFamily: "system-ui,sans-serif", padding: "2rem" },
-  header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" },
-  brand: { margin: 0, fontSize: "1.8rem" },
-  name: { marginRight: "1rem" },
-  logout: { background: "#334155", color: "white", border: "none", padding: "0.5rem 1rem", borderRadius: "6px", cursor: "pointer" },
-  prompt: { fontSize: "1.1rem", marginBottom: "1rem" },
-  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(240px,1fr))", gap: "1rem" },
-  courseBtn: { background: "white", color: "#1e3a8a", border: "none", padding: "1.2rem", borderRadius: "10px", fontSize: "1rem", fontWeight: 600, cursor: "pointer", textAlign: "left" },
 }
 
 export default Home
