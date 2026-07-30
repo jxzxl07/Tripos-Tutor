@@ -81,3 +81,11 @@ class QuestionPart(Base):
     marks: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     question: Mapped["Question"] = relationship()
+
+class ImprovementSummary(Base):
+    __tablename__ = "improvement_summaries"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    course_id: Mapped[int] = mapped_column(ForeignKey("courses.id"))
+    summary_text: Mapped[str] = mapped_column(Text)
+    attempt_count: Mapped[int] = mapped_column(Integer)
