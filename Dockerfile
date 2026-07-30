@@ -17,6 +17,7 @@
     RUN pip install --no-cache-dir -r requirements.txt
     
     COPY backend/ ./backend/
+    COPY data/papers ./data/papers
     # copy the built frontend from stage 1 into a folder FastAPI will serve
     COPY --from=frontend /frontend/dist ./frontend_dist
     
