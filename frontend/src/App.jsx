@@ -3,12 +3,13 @@ import Login from "./login"
 import Home from "./Home"
 import CourseQuestions from "./CourseQuestions"
 import QuestionView from "./QuestionView"
+import Dashboard from "./Dashboard"
 
 function App() {
   const [user, setUser] = useState(null)
-  const [screen, setScreen] = useState("home")      // home | course | question
-  const [course, setCourse] = useState(null)         // selected course
-  const [questionId, setQuestionId] = useState(null) // selected question
+  const [screen, setScreen] = useState("home")      // home | course | question | dashboard
+  const [course, setCourse] = useState(null)
+  const [questionId, setQuestionId] = useState(null)
 
   if (!user) return <Login onLogin={setUser} />
 
@@ -16,7 +17,8 @@ function App() {
 
   if (screen === "home") {
     return <Home user={user} onLogout={() => setUser(null)}
-                 onPickCourse={(c) => { setCourse(c); setScreen("course") }} />
+                 onPickCourse={(c) => { setCourse(c); setScreen("course") }}
+                 onDashboard={() => setScreen("dashboard")} />
   }
   if (screen === "course") {
     return <CourseQuestions course={course} onBack={goHome}
@@ -25,6 +27,9 @@ function App() {
   if (screen === "question") {
     return <QuestionView questionId={questionId} user={user}
                  onBack={() => setScreen("course")} />
+  }
+  if (screen === "dashboard") {
+    return <Dashboard user={user} onBack={goHome} />
   }
 }
 
