@@ -5,12 +5,12 @@ function Dashboard({ user, onBack }) {
   const [data, setData] = useState(null)
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/dashboard/${user.id}`)
+    fetch(`/api/dashboard/${user.id}`)
       .then((r) => r.json()).then(setData)
   }, [user])
 
   if (!data)
-    return <div className="min-h-screen bg-slate-950 text-slate-200 flex items-center justify-center">Loading your progress…</div>
+    return <div className="min-h-screen bg-slate-950 text-slate-200 flex items-center justify-center">Loading your progress… (This may take a while)</div>
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-950 text-slate-100">

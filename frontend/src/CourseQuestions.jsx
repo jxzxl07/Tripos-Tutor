@@ -6,7 +6,7 @@ function CourseQuestions({ course, onBack, onPickQuestion }) {
 
   useEffect(() => {
     setLoading(true)
-    fetch(`http://localhost:8000/api/courses/${course.slug}/questions`)
+    fetch(`/api/courses/${course.slug}/questions`)
       .then((r) => r.json())
       .then((data) => { setQuestions(data); setLoading(false) })
   }, [course])

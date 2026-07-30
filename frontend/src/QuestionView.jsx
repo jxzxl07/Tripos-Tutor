@@ -7,13 +7,13 @@ function QuestionView({ questionId, user, onBack }) {
   const [loading, setLoading] = useState({})
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/questions/${questionId}`)
+    fetch(`/api/questions/${questionId}`)
       .then((r) => r.json()).then(setQuestion)
   }, [questionId])
 
   const submitPart = async (partId) => {
     setLoading((l) => ({ ...l, [partId]: true }))
-    const res = await fetch("http://localhost:8000/api/mark", {
+    const res = await fetch("/api/mark", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ part_id: partId, answer: answers[partId] || "", user_id: user.id }),
@@ -40,7 +40,7 @@ function QuestionView({ questionId, user, onBack }) {
       <div className="flex flex-1 min-h-0">
         <div className="hidden lg:block lg:w-[55%] p-4 sticky top-[65px] h-[calc(100vh-65px)]">
           <iframe title="question"
-            src={`http://localhost:8000/api/questions/${questionId}/pdf#toolbar=0`}
+            src={`/api/questions/${questionId}/pdf#toolbar=0`}
             className="w-full h-full rounded-xl bg-white shadow-2xl ring-1 ring-slate-800" />
         </div>
 
