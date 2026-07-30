@@ -8,3 +8,4 @@ google-genai
 python-dotenvhttpx
 beautifulsoup4
 google-auth
+pytest

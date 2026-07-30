@@ -1,0 +1,23 @@
+[
+    {
+      "name": "compiler_q35a_strong",
+      "question_id": 35, "part_label": "a",
+      "answer": "\u03bb (0 1) uses all five productions: E\u2192\u03bbE for the lambda, E\u2192EA for the application, E\u2192A as the base, A\u2192(E) for the bracket, and A\u2192n for 0 and 1. It has a single parse tree so it is unambiguous.",
+      "expected_min": 1, "expected_max": 2,
+      "note": "Correct unambiguous term using all productions"
+    },
+    {
+      "name": "compiler_q35a_weak",
+      "question_id": 35, "part_label": "a",
+      "answer": "maybe lambda n n",
+      "expected_min": 0, "expected_max": 1,
+      "note": "Vague, incomplete, likely ambiguous"
+    },
+    {
+      "name": "compiler_q35a_empty",
+      "question_id": 35, "part_label": "a",
+      "answer": "I don't know.",
+      "expected_min": 0, "expected_max": 0,
+      "note": "No attempt \u2014 must score zero"
+    }
+  ]
