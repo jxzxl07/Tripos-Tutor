@@ -5,7 +5,9 @@ asyncpg
 alembic
 pydantic-settings
 google-genai
-python-dotenvhttpx
+python-dotenv
+httpx
 beautifulsoup4
 google-auth
 pytest
+psycopg2-binary

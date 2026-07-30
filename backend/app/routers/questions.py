@@ -64,6 +64,9 @@ def questions_for_course(slug: str):
 
 from fastapi.responses import FileResponse
 import os
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 @router.get("/questions/{question_id}/pdf")
 def get_question_pdf(question_id: int):
@@ -72,8 +75,11 @@ def get_question_pdf(question_id: int):
     s.close()
     if not q or not q.source_pdf_path:
         raise HTTPException(404, "PDF not found")
-    if not os.path.exists(q.source_pdf_path):
+    path = q.source_pdf_path
+    if not os.path.isabs(path):
+        path = str(REPO_ROOT / path)
+    if not os.path.exists(path):
         raise HTTPException(404, "PDF file missing on disk")
-    return FileResponse(q.source_pdf_path, media_type="application/pdf")
+    return FileResponse(path, media_type="application/pdf")
 
 

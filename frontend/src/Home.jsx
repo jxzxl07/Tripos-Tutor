@@ -4,7 +4,7 @@ function Home({ user, onLogout, onPickCourse, onDashboard }) {
   const [courses, setCourses] = useState([])
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/courses")
+    fetch("/api/courses")
       .then((r) => r.json()).then(setCourses)
   }, [])
 
