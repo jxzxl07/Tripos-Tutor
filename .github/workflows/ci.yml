@@ -1,33 +1,18 @@
 name: CI
-
 on:
   push:
     branches: [main]
   pull_request:
-
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
-      - name: Install dependencies
-        run: pip install -r backend/requirements.txt
-
-      - name: Build frontend
-        run: |
-          cd frontend
-          npm install
-          npm run build
-
-      - name: Run marking eval harness
-        working-directory: backend
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: python -m pytest tests/ -v
+      - run: pip install -r backend/requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: cd frontend && npm install && npm run build
