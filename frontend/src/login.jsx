@@ -8,56 +8,63 @@ function Login({ onLogin }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credential: credentialResponse.credential }),
       })
+      if (res.status === 403) {
+        alert("Please sign in with your Cambridge (@cam.ac.uk) account.")
+        return
+      }
       const user = await res.json()
       onLogin(user)
     } catch (e) {
       alert("Login failed: " + e)
     }
   }
-
-  const handleError = () => {
-    alert("Login failed")
-  }
+  const handleError = () => alert("Login failed")
 
   return (
-    <div style={styles.page}>
-      <div style={styles.card}>
-        <h1 style={styles.title}>Tripos Tutor</h1>
-        <p style={styles.subtitle}>
-          AI-powered exam revision for Cambridge Computer Science.
-          Practise past-paper questions and get instant, examiner-style marking.
-        </p>
-
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-950 via-slate-900 to-slate-950 px-4">
+      <div className="w-full max-w-md">
+        {/* Brand */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 mb-4 shadow-lg shadow-blue-500/30">
+            <span className="text-3xl font-bold text-white">T</span>
+          </div>
+          <h1 className="text-4xl font-bold text-white tracking-tight">Tripos Tutor</h1>
         </div>
 
-        <p style={styles.note}>Cambridge (@cam.ac.uk) accounts only</p>
+        {/* Card */}
+        <div className="bg-white/95 backdrop-blur rounded-3xl p-8 shadow-2xl">
+          <p className="text-slate-600 text-center leading-relaxed mb-8">
+            AI-powered exam revision for Cambridge Computer Science. Practise past-paper
+            questions and get instant, examiner-style marking.
+          </p>
+
+          <div className="flex justify-center mb-6">
+            <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
+          </div>
+
+          <div className="flex items-center gap-3 text-slate-400 text-xs">
+            <div className="flex-1 h-px bg-slate-200" />
+            <span>Cambridge accounts only</span>
+            <div className="flex-1 h-px bg-slate-200" />
+          </div>
+        </div>
+
+        {/* Feature hints */}
+        <div className="grid grid-cols-3 gap-3 mt-6 text-center">
+          {[
+            ["230+", "Past questions"],
+            ["17", "IB courses"],
+            ["AI", "Instant marking"],
+          ].map(([big, small]) => (
+            <div key={small} className="bg-white/5 border border-white/10 rounded-xl py-3">
+              <p className="text-xl font-bold text-white">{big}</p>
+              <p className="text-xs text-slate-400 mt-0.5">{small}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
-}
-
-const styles = {
-  page: {
-    minHeight: "100vh",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "linear-gradient(135deg, #1e3a8a, #0f172a)",
-    fontFamily: "system-ui, sans-serif",
-  },
-  card: {
-    background: "white",
-    padding: "3rem",
-    borderRadius: "16px",
-    boxShadow: "0 10px 40px rgba(0,0,0,0.3)",
-    textAlign: "center",
-    maxWidth: "420px",
-  },
-  title: { fontSize: "2.5rem", margin: "0 0 0.5rem", color: "#1e3a8a" },
-  subtitle: { color: "#475569", lineHeight: 1.6, marginBottom: "2rem" },
-  note: { color: "#94a3b8", fontSize: "0.85rem", marginTop: "1rem" },
 }
 
 export default Login
