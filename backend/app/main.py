@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import questions, marking, auth
+from app.routers import questions, marking, auth, dashboard
 
 app = FastAPI(title="Tripos Tutor")
 
@@ -15,6 +15,7 @@ app.add_middleware(
 app.include_router(questions.router)
 app.include_router(marking.router)
 app.include_router(auth.router)
+app.include_router(dashboard.router)
 
 
 @app.get("/api/health")

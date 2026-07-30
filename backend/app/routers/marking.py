@@ -12,7 +12,7 @@ router = APIRouter(prefix="/api", tags=["marking"])
 class MarkRequest(BaseModel):
     part_id: int
     answer: str
-    user_id: int          # NEW — who is submitting
+    user_id: int
 
 
 @router.post("/mark")
@@ -32,7 +32,6 @@ def mark(req: MarkRequest):
         criteria, req.answer, q.context_text,
     )
 
-    # Save the attempt
     attempt = Attempt(
         user_id=req.user_id,
         question_id=q.id,

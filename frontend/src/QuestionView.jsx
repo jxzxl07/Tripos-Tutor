@@ -28,7 +28,6 @@ function QuestionView({ questionId, user, onBack }) {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
-      {/* Top bar */}
       <header className="flex items-center gap-4 px-6 py-4 border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-10">
         <button onClick={onBack}
           className="text-sm text-blue-400 hover:text-blue-300 transition-colors">← Questions</button>
@@ -39,14 +38,12 @@ function QuestionView({ questionId, user, onBack }) {
       </header>
 
       <div className="flex flex-1 min-h-0">
-        {/* PDF */}
         <div className="hidden lg:block lg:w-[55%] p-4 sticky top-[65px] h-[calc(100vh-65px)]">
           <iframe title="question"
             src={`http://localhost:8000/api/questions/${questionId}/pdf#toolbar=0`}
             className="w-full h-full rounded-xl bg-white shadow-2xl ring-1 ring-slate-800" />
         </div>
 
-        {/* Answers */}
         <div className="w-full lg:w-[45%] p-6 overflow-y-auto h-[calc(100vh-65px)] border-l border-slate-800">
           <h3 className="text-xl font-bold mb-5">Your Answers</h3>
 
@@ -80,7 +77,7 @@ function QuestionView({ questionId, user, onBack }) {
                 </button>
 
                 {r && (
-                  <div className="mt-4 bg-slate-950 rounded-xl p-4 border border-slate-800 animate-[fadeIn_0.3s_ease]">
+                  <div className="mt-4 bg-slate-950 rounded-xl p-4 border border-slate-800">
                     <div className="flex items-baseline gap-1 mb-3">
                       <span className="text-3xl font-extrabold text-green-400">{r.marks_awarded}</span>
                       <span className="text-lg text-slate-400">/ {r.marks_available}</span>

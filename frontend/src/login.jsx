@@ -53,8 +53,8 @@ function Login({ onLogin }) {
         <div className="grid grid-cols-3 gap-3 mt-6 text-center">
           {[
             ["230+", "Past questions"],
-            ["17", "IB courses"],
-            ["AI", "Instant marking"],
+            ["All", "IB courses"],
+            ["AI", "Accurate marking"],
           ].map(([big, small]) => (
             <div key={small} className="bg-white/5 border border-white/10 rounded-xl py-3">
               <p className="text-xl font-bold text-white">{big}</p>
