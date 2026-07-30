@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import Markdown from "./Markdown"
 
 function Dashboard({ user, onBack }) {
   const [data, setData] = useState(null)
@@ -37,7 +38,9 @@ function Dashboard({ user, onBack }) {
             {/* Improvement summary */}
             <div className="bg-blue-950/40 border border-blue-800/50 rounded-xl p-4 mb-5">
               <p className="text-xs font-bold uppercase tracking-wide text-blue-400 mb-2">What to improve</p>
-              <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-line">{c.improvement_summary}</p>
+            <div className="text-sm text-slate-200">
+             <Markdown>{c.improvement_summary}</Markdown>
+            </div>
             </div>
 
             {/* Attempts list */}
