@@ -7,5 +7,6 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=str(ENV_PATH), extra="ignore")
     database_url: str
     gemini_api_key: str
+    google_client_id: str
 
 settings = Settings()

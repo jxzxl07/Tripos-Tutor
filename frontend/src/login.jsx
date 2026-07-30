@@ -1,27 +1,42 @@
+import { GoogleLogin } from '@react-oauth/google'
+
 function Login() {
-    const handleGoogleLogin = () => {
-      // Placeholder — we'll wire this to real Google OAuth next.
-      alert("Google login coming next!")
+  const handleSuccess = async (credentialResponse) => {
+    try {
+      const res = await fetch("http://localhost:8000/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      })
+      const user = await res.json()
+      alert(`Welcome, ${user.name}! (user id ${user.id})`)
+    } catch (e) {
+      alert("Login failed: " + e)
     }
-  
-    return (
-      <div style={styles.page}>
-        <div style={styles.card}>
-          <h1 style={styles.title}>Tripos Tutor</h1>
-          <p style={styles.subtitle}>
-            AI-powered exam revision for Cambridge Computer Science.
-            Practise past-paper questions and get instant, examiner-style marking.
-          </p>
-  
-          <button style={styles.googleBtn} onClick={handleGoogleLogin}>
-            Sign in with Google
-          </button>
-  
-          <p style={styles.note}>Cambridge (@cam.ac.uk) accounts only</p>
-        </div>
-      </div>
-    )
   }
+
+  const handleError = () => {
+    alert("Login failed")
+  }
+
+  return (
+    <div style={styles.page}>
+      <div style={styles.card}>
+        <h1 style={styles.title}>Tripos Tutor</h1>
+        <p style={styles.subtitle}>
+          AI-powered exam revision for Cambridge Computer Science.
+          Practise past-paper questions and get instant, examiner-style marking.
+        </p>
+
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <GoogleLogin onSuccess={handleSuccess} onError={handleError} />
+        </div>
+
+        <p style={styles.note}>Cambridge (@cam.ac.uk) accounts only</p>
+      </div>
+    </div>
+  )
+}
   
   const styles = {
     page: {
