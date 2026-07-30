@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 
-function Home({ user, onLogout, onPickCourse }) {
+function Home({ user, onLogout, onPickCourse, onDashboard }) {
   const [courses, setCourses] = useState([])
 
   useEffect(() => {
@@ -15,6 +15,10 @@ function Home({ user, onLogout, onPickCourse }) {
           <h1 className="text-2xl font-bold tracking-tight">Tripos Tutor</h1>
           <div className="flex items-center gap-4">
             <span className="text-slate-300 text-sm">{user.name}</span>
+            <button onClick={onDashboard}
+              className="text-sm bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg transition-colors">
+              My Progress
+            </button>
             <button onClick={onLogout}
               className="text-sm bg-slate-800 hover:bg-slate-700 border border-slate-700
                          px-4 py-2 rounded-lg transition-colors">Log out</button>
