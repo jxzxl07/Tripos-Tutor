@@ -48,3 +48,32 @@ def get_question(question_id: int):
     )
     s.close()
     return result
+
+@router.get("/courses/{slug}/questions")
+def questions_for_course(slug: str):
+    s = SessionLocal()
+    course = s.query(Course).filter_by(slug=slug).first()
+    if not course:
+        s.close()
+        raise HTTPException(404, "Course not found")
+    qs = s.query(Question).filter_by(course_id=course.id)\
+        .order_by(Question.year.desc(), Question.paper, Question.question_number).all()
+    out = [{"id": q.id, "year": q.year, "paper": q.paper, "question_number": q.question_number} for q in qs]
+    s.close()
+    return out
+
+from fastapi.responses import FileResponse
+import os
+
+@router.get("/questions/{question_id}/pdf")
+def get_question_pdf(question_id: int):
+    s = SessionLocal()
+    q = s.get(Question, question_id)
+    s.close()
+    if not q or not q.source_pdf_path:
+        raise HTTPException(404, "PDF not found")
+    if not os.path.exists(q.source_pdf_path):
+        raise HTTPException(404, "PDF file missing on disk")
+    return FileResponse(q.source_pdf_path, media_type="application/pdf")
+
+
