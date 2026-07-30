@@ -9,3 +9,4 @@ python-dotenv
 httpx
 beautifulsoup4
 google-auth
+psycopg2-binary
