@@ -1,8 +1,10 @@
 import json
 import time
-from fastapi import APIRouter
-from app.db import SessionLocal
-from app.models import Attempt, Question, Course, ImprovementSummary
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.db import get_db
+from app.models import Attempt, Question, Course, ImprovementSummary, User
+from app.security import get_current_user
 from app.services.llm import client, FLASH
 
 router = APIRouter(prefix="/api", tags=["dashboard"])
@@ -37,9 +39,10 @@ def generate_summary(course_name, feedback_items, max_retries=2):
     raise Exception("summary generation timed out after retries")
 
 
-@router.get("/dashboard/{user_id}")
-def dashboard(user_id: int):
-    s = SessionLocal()
+@router.get("/dashboard/me")
+def dashboard(user: User = Depends(get_current_user), s: Session = Depends(get_db)):
+    # The user comes from the session token, so you can only ever see your own data.
+    user_id = user.id
 
     # all attempts for this user, joined to their course
     rows = (
@@ -111,5 +114,4 @@ def dashboard(user_id: int):
         s.commit()
         c["improvement_summary"] = summary
 
-    s.close()
     return {"courses": list(courses.values())}

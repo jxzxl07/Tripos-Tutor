@@ -6,17 +6,19 @@ import QuestionView from "./QuestionView"
 import Dashboard from "./Dashboard"
 
 function App() {
-  const [user, setUser] = useState(null)
+  const [session, setSession] = useState(null)       // { token, user }
   const [screen, setScreen] = useState("home")      // home | course | question | dashboard
   const [course, setCourse] = useState(null)
   const [questionId, setQuestionId] = useState(null)
 
-  if (!user) return <Login onLogin={setUser} />
+  if (!session) return <Login onLogin={setSession} />
+  const user = session.user
+  const logout = () => { setSession(null); setScreen("home") }
 
   const goHome = () => { setScreen("home"); setCourse(null); setQuestionId(null) }
 
   if (screen === "home") {
-    return <Home user={user} onLogout={() => setUser(null)}
+    return <Home user={user} onLogout={logout}
                  onPickCourse={(c) => { setCourse(c); setScreen("course") }}
                  onDashboard={() => setScreen("dashboard")} />
   }
@@ -25,11 +27,11 @@ function App() {
                  onPickQuestion={(id) => { setQuestionId(id); setScreen("question") }} />
   }
   if (screen === "question") {
-    return <QuestionView questionId={questionId} user={user}
-                 onBack={() => setScreen("course")} />
+    return <QuestionView questionId={questionId} session={session}
+                 onUnauthorized={logout} onBack={() => setScreen("course")} />
   }
   if (screen === "dashboard") {
-    return <Dashboard user={user} onBack={goHome} />
+    return <Dashboard session={session} onUnauthorized={logout} onBack={goHome} />
   }
 }
 

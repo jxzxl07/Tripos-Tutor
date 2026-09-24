@@ -1,14 +1,19 @@
 import { useState, useEffect } from "react"
 import Markdown from "./Markdown"
+import { authFetch } from "./api"
 
-function Dashboard({ user, onBack }) {
+function Dashboard({ session, onUnauthorized, onBack }) {
   const [data, setData] = useState(null)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    fetch(`/api/dashboard/${user.id}`)
-      .then((r) => r.json()).then(setData)
-  }, [user])
+    // "me" - the server works out who you are from the token
+    authFetch("/api/dashboard/me", session, onUnauthorized)
+      .then(setData).catch((e) => setError(e.message))
+  }, [session, onUnauthorized])
 
+  if (error)
+    return <div className="min-h-screen bg-slate-950 text-slate-200 flex items-center justify-center">{error}</div>
   if (!data)
     return <div className="min-h-screen bg-slate-950 text-slate-200 flex items-center justify-center">Loading your progress… (This may take a while)</div>
 

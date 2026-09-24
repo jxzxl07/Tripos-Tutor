@@ -1,30 +1,32 @@
 import json
-from datetime import datetime
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from app.db import SessionLocal
-from app.models import Question, QuestionPart, Rubric, Attempt
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
+from app.db import get_db
+from app.models import Question, QuestionPart, Rubric, Attempt, User
+from app.security import get_current_user
 from app.services.marking import mark_part
+from app.services.sanitize import MAX_ANSWER_CHARS
 
 router = APIRouter(prefix="/api", tags=["marking"])
 
 
 class MarkRequest(BaseModel):
     part_id: int
-    answer: str
-    user_id: int
+    # Length cap bounds LLM cost per request; no user_id — it comes from the token.
+    answer: str = Field(max_length=MAX_ANSWER_CHARS)
 
 
 @router.post("/mark")
-def mark(req: MarkRequest):
-    s = SessionLocal()
-    part = s.get(QuestionPart, req.part_id)
+def mark(req: MarkRequest,
+         user: User = Depends(get_current_user),
+         db: Session = Depends(get_db)):
+    part = db.get(QuestionPart, req.part_id)
     if not part:
-        s.close()
         raise HTTPException(404, "Part not found")
 
-    q = s.get(Question, part.question_id)
-    rubric = s.query(Rubric).filter_by(question_id=q.id).first()
+    q = db.get(Question, part.question_id)
+    rubric = db.query(Rubric).filter_by(question_id=q.id).first()
     criteria = json.loads(rubric.criteria_json) if rubric else []
 
     result = mark_part(
@@ -33,7 +35,7 @@ def mark(req: MarkRequest):
     )
 
     attempt = Attempt(
-        user_id=req.user_id,
+        user_id=user.id,
         question_id=q.id,
         answer_text=req.answer,
         awarded_mark=result.marks_awarded,
@@ -46,9 +48,7 @@ def mark(req: MarkRequest):
             "gaps": result.gaps,
             "feedback": result.feedback,
         }),
-        created_at=datetime.utcnow(),
-    )
-    s.add(attempt)
-    s.commit()
-    s.close()
+    )   # created_at is set by the database (server_default=now())
+    db.add(attempt)
+    db.commit()
     return result.model_dump()
