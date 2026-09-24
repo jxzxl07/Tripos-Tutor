@@ -14,3 +14,11 @@ dist/
 .vscode/
 .idea/
 
+data/papers/**/*ms.pdf
+
+.pytest_cache/
+
+# local data - never commit
+*.sql
+data/papers.zip
+data/papers/**/*ms.pdf

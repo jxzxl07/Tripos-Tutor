@@ -12,8 +12,12 @@ function Login({ onLogin }) {
         alert("Please sign in with your Cambridge (@cam.ac.uk) account.")
         return
       }
-      const user = await res.json()
-      onLogin(user)
+      if (!res.ok) {
+        alert("Login failed - please try again.")
+        return
+      }
+      const { token, user } = await res.json()
+      onLogin({ token, user })   // token is kept in memory only, not localStorage
     } catch (e) {
       alert("Login failed: " + e)
     }

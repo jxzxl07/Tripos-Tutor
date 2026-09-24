@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react"
 import Markdown from "./Markdown"
+import { authFetch } from "./api"
 
-function QuestionView({ questionId, user, onBack }) {
+function QuestionView({ questionId, session, onUnauthorized, onBack }) {
+  const user = session.user
   const [question, setQuestion] = useState(null)
   const [answers, setAnswers] = useState({})
   const [results, setResults] = useState({})
@@ -14,14 +16,18 @@ function QuestionView({ questionId, user, onBack }) {
 
   const submitPart = async (partId) => {
     setLoading((l) => ({ ...l, [partId]: true }))
-    const res = await fetch("/api/mark", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ part_id: partId, answer: answers[partId] || "", user_id: user.id }),
-    })
-    const result = await res.json()
-    setResults((r) => ({ ...r, [partId]: result }))
-    setLoading((l) => ({ ...l, [partId]: false }))
+    try {
+      const result = await authFetch("/api/mark", session, onUnauthorized, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ part_id: partId, answer: answers[partId] || "" }),
+      })
+      setResults((r) => ({ ...r, [partId]: result }))
+    } catch (e) {
+      alert(e.message)
+    } finally {
+      setLoading((l) => ({ ...l, [partId]: false }))
+    }
   }
 
   if (!question)
@@ -71,6 +77,7 @@ function QuestionView({ questionId, user, onBack }) {
                              text-slate-100 text-sm resize-y outline-none
                              focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                   placeholder={`Your answer to part (${part.label})…`}
+                  maxLength={5000}
                   value={answers[part.id] || ""}
                   onChange={(e) => setAnswers((a) => ({ ...a, [part.id]: e.target.value }))} />
 

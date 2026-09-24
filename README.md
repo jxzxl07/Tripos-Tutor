@@ -18,13 +18,14 @@ Cambridge past papers are freely available, but there's no fast way to get feedb
 
 The interesting engineering is in the marking pipeline:
 
-- **Structured outputs.** Every LLM call returns a validated Pydantic schema, so a mark is always a checked integer — it can't be forged by a "give me full marks" answer.
+- **Structured outputs.** Every LLM call returns a validated Pydantic schema, and the awarded mark is clamped to `[0, marks available]` server-side, so a "give me full marks" answer can't produce an impossible score.
 - **Model routing.** Gemini Flash handles cheap bulk work (rubric generation, summaries); Gemini Pro does the marking, where quality matters.
 - **Grounded rubrics.** Each question gets a rubric generated once and stored — grounded in the official mark scheme where one is available, generated from the question text otherwise.
-- **Prompt-injection defence.** Student answers are treated as untrusted input: delimited, control-character stripped, and the model is explicitly instructed to ignore any embedded commands. Output is sanitised before rendering.
+- **Prompt-injection defence.** Student answers are treated as untrusted input: length-capped, stripped of control and invisible Unicode characters, any attempt to close the answer delimiter is neutralised, and the model is explicitly instructed to ignore embedded commands. Output is sanitised before rendering.
+- **Authentication.** Google sign-in is verified server-side, then the API issues its own short-lived signed session token. Protected routes derive the user from that token, never from an ID the client sends, so users can only mark as and see themselves.
 - **Graceful degradation.** LLM timeouts are retried and fall back to cached results, so a slow API call never takes down a page.
 
-Marking accuracy is checked by a pytest eval harness that runs the marker over labelled answers (strong / partial / empty) and asserts the awarded marks land in the expected range.
+Marking accuracy is checked by a pytest eval harness that runs the marker over labelled answers (strong / weak / empty / prompt-injection) and asserts the awarded marks land in the expected range (`RUN_LLM_EVALS=1`, calls the live model). Offline tests cover auth, access control, mark clamping and input sanitisation, and run in CI on every push.
 
 ## Stack
 
@@ -37,7 +38,7 @@ Marking accuracy is checked by a pytest eval harness that runs the marker over l
 | Auth | Google OAuth (restricted to `@cam.ac.uk`) |
 | Deploy | Docker, Render, GitHub Actions (CI) |
 
-The whole app ships as a single container: the React build is compiled and served directly by FastAPI, so there's one image, one URL, and no CORS. CI runs on every push to `main`.
+The whole app ships as a single container: the React build is compiled and served directly by FastAPI, so there's one image, one URL, and no CORS. CI runs the test suite and the frontend build on every push to `main`.
 
 ## Notes
 

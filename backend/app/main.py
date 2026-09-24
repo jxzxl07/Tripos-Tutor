@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from app.routers import questions, marking, auth, dashboard
 
 app = FastAPI(title="Tripos Tutor")
@@ -33,5 +33,8 @@ if os.path.isdir(FRONTEND_DIR):
 
     @app.get("/{full_path:path}")
     def serve_spa(full_path: str):
+        # Unknown /api paths must 404, not fall through to the React page with a 200
+        if full_path == "api" or full_path.startswith("api/"):
+            raise HTTPException(404, "Not found")
         # serve index.html for any non-API route (React handles routing client-side)
         return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))

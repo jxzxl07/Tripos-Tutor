@@ -2,9 +2,9 @@
 Marks a student's answer to ONE part of a question against that part's rubric
 criterion (matched by label). Returns a mark plus what scored / what was missed.
 """
-import json
 from pydantic import BaseModel
 from app.services.llm import client, PRO
+from app.services.sanitize import clean_answer
 
 
 class PartMarkingResult(BaseModel):
@@ -50,6 +50,12 @@ def find_criterion_for_part(label: str, rubric_criteria: list[dict]) -> dict | N
     return None
 
 
+def clamp_marks(awarded: int, available: int) -> int:
+    """The schema only guarantees an int. Bound it to [0, available] so a
+    confused or manipulated model can never store an impossible mark."""
+    return max(0, min(awarded, available))
+
+
 def mark_part(part_label: str, part_text: str, part_marks: int | None,
               rubric_criteria: list[dict], student_answer: str,
               context_text: str | None = None) -> PartMarkingResult:
@@ -59,6 +65,15 @@ def mark_part(part_label: str, part_text: str, part_marks: int | None,
     marks_available = part_marks or (criterion["marks"] if criterion else 0) or 0
     criterion_text = criterion["point"] if criterion else \
         "No specific criterion found — assess the answer against what a strong response to this part would require."
+
+    student_answer = clean_answer(student_answer)
+    if not student_answer:
+        # Nothing to mark: return 0 without spending an LLM call.
+        return PartMarkingResult(
+            marks_awarded=0, marks_available=marks_available,
+            strengths="", gaps="No answer was submitted.",
+            feedback="Write an answer to this part to get it marked.",
+        )
 
     context_block = f"CONTEXT (shared setup for the whole question):\n{context_text}\n\n" \
         if context_text else ""
@@ -81,5 +96,8 @@ def mark_part(part_label: str, part_text: str, part_marks: int | None,
         },
     )
     result = resp.parsed
+    if result is None:
+        raise RuntimeError("Marking model returned output that did not match the schema")
     result.marks_available = marks_available   # ensure it reports the right total
+    result.marks_awarded = clamp_marks(result.marks_awarded, marks_available)
     return result
